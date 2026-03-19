@@ -87,7 +87,9 @@ Events.OnGameBoot.Add(function()
         self.filterMenu:setVisible(false)
 
         self:refreshItemGrids()
-        self.parent:checkTetrisSearch()
+        if self.parent then
+            self.parent:checkTetrisSearch()
+        end
     end
 
     function ISInventoryPane:refreshItemGrids(forceFullRefresh)

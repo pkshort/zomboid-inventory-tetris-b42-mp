@@ -1,15 +1,22 @@
--- TODO: Completely redo this
--- 
--- Handles syncing of grid data between client and server for a few specific objects that do not support the normal modData syncing methods.
+-- Handles syncing of grid data between client and server for world items and vehicles,
+-- which do not support the normal modData syncing methods.
 
--- Keep these synced with the ones in TetrisServer.lua
+-- Keep command names synced with TetrisServer.lua
+local MODULE = "InventoryTetris"
+
 local TETRIS_UUID = "TetrisUUID"
 
 local WORLD_ITEM_DATA = "INVENTORYTETRIS_WorldItemData"
-local WORLD_ITEM_PARTIAL = "INVENTORYTETRIS_WorldItemPartial"
-
 local VEHICLE_ITEM_DATA = "INVENTORYTETRIS_VehicleItemData"
-local VEHICLE_ITEM_PARTIAL = "INVENTORYTETRIS_VehicleItemPartial"
+
+local CMD_WORLD_PARTIAL  = "WorldItemPartial"
+local CMD_VEHICLE_PARTIAL = "VehicleItemPartial"
+local CMD_REQUEST_WORLD   = "RequestWorldData"
+local CMD_REQUEST_VEHICLE = "RequestVehicleData"
+local CMD_WORLD_UPDATE    = "WorldItemUpdate"
+local CMD_VEHICLE_UPDATE  = "VehicleItemUpdate"
+local CMD_WORLD_FULL      = "WorldItemFull"
+local CMD_VEHICLE_FULL    = "VehicleItemFull"
 
 TetrisClient = {}
 TetrisClient._modDataSyncQueue = {}
@@ -48,34 +55,32 @@ function TetrisClient.getVehicleModData(vehicle)
 end
 
 
-function TetrisClient.transmitPartialData(fullKey, partialKey, data)
-    local fullData = ModData.getOrCreate(fullKey)
-    fullData[data[TETRIS_UUID]] = data
-
-    ModData.add(partialKey, data)
-    ModData.transmit(partialKey)
+local function cacheGridData(dataKey, gridData)
+    ModData.getOrCreate(dataKey)[gridData[TETRIS_UUID]] = gridData
 end
 
 function TetrisClient.transmitWorldInventoryObjectData(worldInvObject)
-    local item = worldInvObject:getItem();
-    local gridData = item and item:getModData().gridContainers;
+    local item = worldInvObject:getItem()
+    local gridData = item and item:getModData().gridContainers
     if not gridData then return end
 
     gridData[TETRIS_UUID] = item:getID()
-    TetrisClient.transmitPartialData(WORLD_ITEM_DATA, WORLD_ITEM_PARTIAL, gridData)
+    cacheGridData(WORLD_ITEM_DATA, gridData)
+    sendClientCommand(MODULE, CMD_WORLD_PARTIAL, gridData)
 end
 
 function TetrisClient.transmitVehicleInventoryData(vehicleObj)
-    local gridData = vehicleObj:getModData().gridContainers;
+    local gridData = vehicleObj:getModData().gridContainers
     if not gridData then return end
 
     gridData[TETRIS_UUID] = vehicleObj:getKeyId()
-    TetrisClient.transmitPartialData(VEHICLE_ITEM_DATA, VEHICLE_ITEM_PARTIAL, gridData)
+    cacheGridData(VEHICLE_ITEM_DATA, gridData)
+    sendClientCommand(MODULE, CMD_VEHICLE_PARTIAL, gridData)
 end
 
 if isClient() then
     Events.OnTick.Add(function()
-        for obj,_ in pairs(TetrisClient._modDataSyncQueue) do  
+        for obj,_ in pairs(TetrisClient._modDataSyncQueue) do
             if instanceof(obj, "IsoWorldInventoryObject") then
                 TetrisClient.transmitWorldInventoryObjectData(obj)
 
@@ -88,35 +93,36 @@ if isClient() then
         end
         table.wipe(TetrisClient._modDataSyncQueue)
     end)
+
+    Events.OnServerCommand.Add(function(module, command, args)
+        if module ~= MODULE then return end
+
+        if command == CMD_WORLD_UPDATE then
+            -- A world item was updated by another client (or corrected by server)
+            if args and args[TETRIS_UUID] then
+                cacheGridData(WORLD_ITEM_DATA, args)
+            end
+
+        elseif command == CMD_VEHICLE_UPDATE then
+            -- A vehicle was updated by another client (or corrected by server)
+            if args and args[TETRIS_UUID] then
+                cacheGridData(VEHICLE_ITEM_DATA, args)
+            end
+
+        elseif command == CMD_WORLD_FULL then
+            -- Full world item dataset received on initial load
+            ModData.add(WORLD_ITEM_DATA, args)
+
+        elseif command == CMD_VEHICLE_FULL then
+            -- Full vehicle dataset received on initial load
+            ModData.add(VEHICLE_ITEM_DATA, args)
+        end
+    end)
 end
 
 Events.OnLoad.Add(function()
-    ModData.request(WORLD_ITEM_DATA)
-    ModData.request(VEHICLE_ITEM_DATA)
-end);
-
-Events.OnReceiveGlobalModData.Add(function(key, data)
-    if isServer() or not data then return end
-
-    if key == WORLD_ITEM_DATA then
-        ModData.add(WORLD_ITEM_DATA, data)
-        return
+    if isClient() then
+        sendClientCommand(MODULE, CMD_REQUEST_WORLD, {})
+        sendClientCommand(MODULE, CMD_REQUEST_VEHICLE, {})
     end
-
-    if key == VEHICLE_ITEM_DATA then
-        ModData.add(VEHICLE_ITEM_DATA, data)
-        return
-    end
-
-    if key == WORLD_ITEM_PARTIAL then
-        local worldItemData = ModData.getOrCreate(WORLD_ITEM_DATA)
-        worldItemData[data[TETRIS_UUID]] = data
-        return
-    end
-
-    if key == VEHICLE_ITEM_PARTIAL then
-        local vehicleItemData = ModData.getOrCreate(VEHICLE_ITEM_DATA)
-        vehicleItemData[data[TETRIS_UUID]] = data
-        return
-    end
-end);
+end)
