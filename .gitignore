@@ -1,0 +1,5 @@
+infra/
+.idea/
+.claude/
+*.zip
+InventoryTetris-b42-mp-setup.txt
