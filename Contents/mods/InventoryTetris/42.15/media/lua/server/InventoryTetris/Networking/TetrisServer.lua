@@ -47,10 +47,10 @@ local function handlePartialData(fullKey, broadcastCommand, player, incomingData
         incomingData.lastServerTime = getTimestampMs()
         fullData[uuid] = incomingData
         -- Broadcast the accepted update to all clients
-        sendServerCommand(MODULE, broadcastCommand, nil, incomingData)
+        sendServerCommand(nil, MODULE, broadcastCommand, incomingData)
     else
         -- Reject stale data: send the authoritative version back to just this client
-        sendServerCommand(MODULE, broadcastCommand, player, existingData)
+        sendServerCommand(player, MODULE, broadcastCommand, existingData)
     end
 end
 
