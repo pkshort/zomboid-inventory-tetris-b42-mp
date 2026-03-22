@@ -65,11 +65,11 @@ Events.OnClientCommand.Add(function(module, command, player, args)
 
     elseif command == CMD_REQUEST_WORLD then
         local fullData = ModData.getOrCreate(WORLD_ITEM_DATA)
-        sendServerCommand(MODULE, CMD_WORLD_FULL, player, fullData)
+        sendServerCommand(player, MODULE, CMD_WORLD_FULL, fullData)
 
     elseif command == CMD_REQUEST_VEHICLE then
         local fullData = ModData.getOrCreate(VEHICLE_ITEM_DATA)
-        sendServerCommand(MODULE, CMD_VEHICLE_FULL, player, fullData)
+        sendServerCommand(player, MODULE, CMD_VEHICLE_FULL, fullData)
     end
 end)
 
