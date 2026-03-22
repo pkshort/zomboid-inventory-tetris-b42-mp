@@ -3,7 +3,7 @@ local TetrisWindowManager = require("InventoryTetris/UI/Windows/TetrisWindowMana
 ---@class(partial) ISInventoryPane
 ---@field tetrisWindowManager TetrisWindowManager
 
-Events.OnGameStart.Add(function()
+Events.OnGameBoot.Add(function()
 
     local og_createChildren = ISInventoryPage.createChildren
     function ISInventoryPage:createChildren()
