@@ -1,0 +1,7 @@
+"workshopitem"
+{
+  "appid"        "108600"
+  "publishedfileid"  "3688186430"
+  "contentfolder"    "C:\Users\pkevi\WebstormProjects\zomboid-inventory-tetris\Contents"
+  "changenote"   "Fix keyring/nested container opening (OnGameBoot), fix remaining sendServerCommand arg order, update workshop description"
+}
