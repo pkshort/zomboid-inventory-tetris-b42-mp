@@ -729,7 +729,7 @@ end
 
 function ItemGridUI.openContextMenuForVanillaStacks(uiContext, x, y, vanillaStacks, inventory, inventoryPane, playerNum)
     if not vanillaStacks then return end
-    local item;
+    local item
 
     if vanillaStacks[1] and vanillaStacks[1].items then
         item = vanillaStacks[1].items[1]
