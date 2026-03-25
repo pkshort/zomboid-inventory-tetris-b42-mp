@@ -121,7 +121,7 @@ end
 
 --- Determine two numbers that multiply *close* to the target slot count
 ---@param target number -- The target slot count
----@param accuracy number -- Reduces the importance of squaring the shape
+---@param accuracy number? -- Reduces the importance of squaring the shape
 ---@return integer, integer -- width, height
 function TetrisContainerCalculator._calculateContainerDimensions(target, accuracy)
     local best = 99999999.9
