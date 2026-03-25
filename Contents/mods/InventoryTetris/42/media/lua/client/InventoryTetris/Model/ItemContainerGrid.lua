@@ -262,24 +262,20 @@ end
 function ItemContainerGrid:doesItemFitAnywhere(item, w, h, ignoreItems)
     local ignoreMap = {}
 
-    for _, grid in ipairs(self.grids) do
-        for _, item in ipairs(ignoreItems) do
-            local stack = grid:findStackByItem(item)
-            if stack then
-                ignoreMap[stack] = true
-            end
-        end
-    end
-
-    for _, grids in pairs(self.secondaryGrids) do
+    local function buildIgnoreMap(grids)
         for _, grid in ipairs(grids) do
-            for _, item in ipairs(ignoreItems) do
-                local stack = grid:findStackByItem(item)
+            for _, ignoreItem in ipairs(ignoreItems) do
+                local stack = grid:findStackByItem(ignoreItem)
                 if stack then
                     ignoreMap[stack] = true
                 end
             end
         end
+    end
+
+    buildIgnoreMap(self.grids)
+    for _, grids in pairs(self.secondaryGrids) do
+        buildIgnoreMap(grids)
     end
 
     for _, grid in ipairs(self.grids) do
@@ -447,7 +443,7 @@ function ItemContainerGrid:insertItem(item, gridX, gridY, gridIndex, isRotated, 
 end
 
 function ItemContainerGrid:removeItem(item)
-    for _, grid in pairs(self.grids) do
+    for _, grid in ipairs(self.grids) do
         if grid:removeItem(item) then
             return true
         end
@@ -696,11 +692,11 @@ function ItemContainerGrid:refreshSecondaryGrids(forceFull)
 
     -- If the clothing change was a 1-to-1 swap, try to move the stacks directly to the new grid
     if #displacedStacks == 1 and #insertedGrids == 1 then
-        local displacedStacks = displacedStacks[1]
-        local insertedGrids = insertedGrids[1]
+        local firstDisplacedStacks = displacedStacks[1]
+        local firstInsertedGrids = insertedGrids[1]
 
-        for _, stack in ipairs(displacedStacks) do
-            local grid = insertedGrids[stack.gridIndex]
+        for _, stack in ipairs(firstDisplacedStacks) do
+            local grid = firstInsertedGrids[stack.gridIndex]
             if grid then
                 stack.gridIndex = nil
                 grid:_tryInsertStack_premade(stack, stack.x, stack.y, stack.isRotated)
