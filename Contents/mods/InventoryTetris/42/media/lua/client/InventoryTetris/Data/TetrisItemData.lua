@@ -100,6 +100,8 @@ function TetrisItemData._getItemData(item, noSquish)
 end
 
 function TetrisItemData._getSquishedId(fType)
+    local cached = TetrisItemData._squishedIdCache[fType]
+    if cached then return cached end
     local squishedId = fType .. SQUISHED_SUFFIX
     TetrisItemData._squishedIdCache[fType] = squishedId
     return squishedId
