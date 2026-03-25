@@ -5,6 +5,7 @@ local SQUISH_FACTOR = 3
 local FLOAT_CORRECTION = 0.001
 local MAX_ITEM_WIDTH = 10
 local MAX_ITEM_HEIGHT = 12
+local MAX_CONTAINER_ITEM_DIM = 12
 
 local TetrisItemCalculator = {}
 
@@ -193,17 +194,16 @@ end
 -- Returns dimensions for a container item based on the number of items it can hold
 -- Always returns a dimension that is >= innerSize
 function TetrisItemCalculator._calculateContainerItemSizeFromInner(innerSize)
-    local MAX_ITEM_DIM = 12
-    if innerSize > MAX_ITEM_DIM * MAX_ITEM_DIM then
-        return MAX_ITEM_DIM, MAX_ITEM_DIM
+    if innerSize > MAX_CONTAINER_ITEM_DIM * MAX_CONTAINER_ITEM_DIM then
+        return MAX_CONTAINER_ITEM_DIM, MAX_CONTAINER_ITEM_DIM
     end
 
     local best = 99999999
     local bestX = 1
     local bestY = 1
 
-    for x = 1, MAX_ITEM_DIM do
-        for y = 1, MAX_ITEM_DIM do
+    for x = 1, MAX_CONTAINER_ITEM_DIM do
+        for y = 1, MAX_CONTAINER_ITEM_DIM do
             local result = x * y
             local diff = math.abs(result - innerSize) + math.abs(x - y) -- Encourage square shapes 
             if diff < best and result >= innerSize then
@@ -225,7 +225,7 @@ function TetrisItemCalculator._calculateItemSizeWeightBased(item, weight)
     local width = 1
     local height = 1
 
-    local weight = weight or item:getActualWeight()
+    weight = weight or item:getActualWeight()
 
     if weight < 1 then
         width = 1
