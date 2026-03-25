@@ -135,6 +135,8 @@ end
 ---@param fullType string
 ---@return string
 function TetrisItemService._getSquishedId(fullType)
+    local cached = TetrisItemService._squishedIdCache[fullType]
+    if cached then return cached end
     local squishedId = fullType .. SQUISHED_SUFFIX
     TetrisItemService._squishedIdCache[fullType] = squishedId
     return squishedId
