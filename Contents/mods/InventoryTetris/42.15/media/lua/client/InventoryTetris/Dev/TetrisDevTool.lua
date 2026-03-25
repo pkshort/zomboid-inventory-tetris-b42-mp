@@ -1381,7 +1381,13 @@ if not TetrisDevTool_og_createMenu then
     ---@param y number
     ---@param origin ISUIElement?
     ISInventoryPaneContextMenu.createMenu = function(player, isInPlayerInventory, items, x, y, origin)
-        local menu = TetrisDevTool_og_createMenu(player, isInPlayerInventory, items, x, y, origin)
+        local ok, menu = pcall(TetrisDevTool_og_createMenu, player, isInPlayerInventory, items, x, y, origin)
+        if not ok then
+            -- Vanilla createMenu can throw (e.g. FixingManager.getFixes NPE when Fixing.getRequiredItem() is null)
+            -- Catch it here to prevent cascading action queue corruption that can drop player inventory
+            print("InventoryTetris: createMenu error caught: " .. tostring(menu))
+            return nil
+        end
         if not menu or not TetrisDevTool.isDebugEnabled() then return menu end
 
         local item = items[1]
