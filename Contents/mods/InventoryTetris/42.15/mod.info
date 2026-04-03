@@ -1,6 +1,6 @@
 name=Inventory Tetris [B42.15+ MP Patch]
 id=INVENTORY_TETRIS
-modversion=6.10.5
+modversion=6.10.8
 description=A full grid-based inventory overhaul for Project Zomboid.
 require=\EQUIPMENT_UI
 versionMin=42.15.0
