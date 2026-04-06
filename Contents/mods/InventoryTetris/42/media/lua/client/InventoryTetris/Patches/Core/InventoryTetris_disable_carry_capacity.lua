@@ -70,7 +70,28 @@ Events.OnGameStart.Add(function()
     local og_update_draggedItems = ISInventoryPaneDraggedItems.update
     function ISInventoryPaneDraggedItems:update()
         local container = self:getDropContainer()
-        return disableCarryWeightOnContainer(container, og_update_draggedItems, self)
+        -- Use high capacity instead of floor-type spoofing to avoid vanilla's
+        -- DraggedItems floor check blocking items with world items (getWorldItem)
+        -- from being dragged to world container sidebar buttons.
+        if not container or container:getType() == "floor" or SandboxVars.InventoryTetris.EnforceCarryWeight then
+            return og_update_draggedItems(self)
+        end
+
+        local containerDef = TetrisContainerData.getContainerDefinition(container)
+        if containerDef.isFragile then
+            return og_update_draggedItems(self)
+        end
+
+        local originalCapacity = container:getCapacity()
+        container:setCapacity(999999)
+        local results = {pcall(og_update_draggedItems, self)}
+        container:setCapacity(originalCapacity)
+
+        if results[1] then
+            return unpack(results, 2)
+        else
+            error(results[2])
+        end
     end
 
     require("ISUI/ISInventoryPage")
