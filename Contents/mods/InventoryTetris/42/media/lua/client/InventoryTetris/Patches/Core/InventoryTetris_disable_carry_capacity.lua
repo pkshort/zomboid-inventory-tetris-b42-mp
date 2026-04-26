@@ -69,7 +69,14 @@ Events.OnGameStart.Add(function()
 
     local og_update_draggedItems = ISInventoryPaneDraggedItems.update
     function ISInventoryPaneDraggedItems:update()
-        local container = self:getDropContainer()
+        -- FIX: getDropContainer() calls getPlayerInventory -> getPlayerData which does
+        -- arithmetic on player data and can throw "__add not defined for operands" if
+        -- the player is not fully initialized. Guard with pcall so we fall back safely.
+        local ok, container = pcall(function() return self:getDropContainer() end)
+        if not ok then
+            return og_update_draggedItems(self)
+        end
+
         -- Use high capacity instead of floor-type spoofing to avoid vanilla's
         -- DraggedItems floor check blocking items with world items (getWorldItem)
         -- from being dragged to world container sidebar buttons.

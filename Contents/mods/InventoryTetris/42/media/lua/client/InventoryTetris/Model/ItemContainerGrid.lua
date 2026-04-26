@@ -780,7 +780,8 @@ end
 Events.OnTick.Add(function()
     for playerNum, grid in pairs(ItemContainerGrid._playerMainGrids) do
         local player = getSpecificPlayer(playerNum)
-        if not player or player:isDead() or player:isNPC() then
+        -- During MP connect the player can be truthy but isDead/isNPC unbound.
+        if not player or not player.isDead or not player.isNPC or player:isDead() or player:isNPC() then
             ItemContainerGrid._playerMainGrids[playerNum] = nil
             ItemContainerGrid._unpositionedItemSetsByPlayer[playerNum] = nil
         else

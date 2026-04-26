@@ -134,12 +134,15 @@ end
 function GridAutoDropSystem._processQueues()
     for playerNum, itemSet in pairs(ItemContainerGrid._unpositionedItemSetsByPlayer) do
         local playerObj = getSpecificPlayer(playerNum)
-        local actionQueueObj = ISTimedActionQueue.getTimedActionQueue(playerObj)
-        local actionQueueIsEmpty = #actionQueueObj.queue == 0
-        if actionQueueIsEmpty then
-            GridAutoDropSystem._dropQueues[playerNum] = itemSet
+        -- Skip until the player is fully initialized (MP connect can produce a stub).
+        if playerObj and playerObj.getInventory then
+            local actionQueueObj = ISTimedActionQueue.getTimedActionQueue(playerObj)
+            local actionQueueIsEmpty = #actionQueueObj.queue == 0
+            if actionQueueIsEmpty then
+                GridAutoDropSystem._dropQueues[playerNum] = itemSet
+            end
+            ItemContainerGrid._unpositionedItemSetsByPlayer[playerNum] = {}
         end
-        ItemContainerGrid._unpositionedItemSetsByPlayer[playerNum] = {}
     end
 
     for playerNum, itemMap in pairs(GridAutoDropSystem._dropQueues) do

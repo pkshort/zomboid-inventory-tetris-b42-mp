@@ -5,6 +5,9 @@ local TetrisHandMonitor = {}
 TetrisHandMonitor.ticksByPlayer = {}
 
 function TetrisHandMonitor.validateEquippedItems(playerObj)
+    -- During MP connect/world load the player object can be truthy but its
+    -- bound Java methods aren't yet attached. Probe a method we will call.
+    if not playerObj or not playerObj.isNPC or not playerObj.getPlayerNum then return end
     if playerObj:isNPC() then return end
 
     local playerNum = playerObj:getPlayerNum()

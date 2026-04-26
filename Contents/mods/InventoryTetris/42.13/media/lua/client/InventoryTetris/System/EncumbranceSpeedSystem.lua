@@ -5,7 +5,10 @@ Events.OnGameStart.Add(function()
 
     -- If the player is overencumbered, slow them down based on how much they're carrying
     Events.OnPlayerUpdate.Add(function(playerObj)
+        -- During MP connect the player can be truthy but its Java methods unbound.
+        if not playerObj or not playerObj.getInventory or not playerObj.getSlowFactor then return end
         local inventory = playerObj:getInventory()
+        if not inventory then return end
         local encumbrance = inventory:getCapacityWeight()
 
         if encumbrance > 50 then
