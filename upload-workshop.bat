@@ -10,6 +10,7 @@ set "STEAMCMD_DIR=%SCRIPT_DIR%steamcmd"
 set "STEAMCMD=%STEAMCMD_DIR%\steamcmd.exe"
 set "WORKSHOP_DIR=%USERPROFILE%\Zomboid\Workshop\InventoryTetris"
 set "MOD_DIR=%SCRIPT_DIR%Contents\mods\InventoryTetris"
+set "CONTENTFOLDER=%SCRIPT_DIR%Contents"
 
 if "%~1"=="" (
     echo Usage: upload-workshop.bat YOUR_STEAM_USERNAME
@@ -31,10 +32,16 @@ echo.
 echo Enter a change description for Steam Workshop, or press Enter to auto-generate from git:
 set /p CHANGENOTE=">> "
 
-REM --- Update changenote in VDF (auto-generates if CHANGENOTE is empty) ---
-REM Args are passed via env vars so cmd quoting doesn't mangle them.
+REM --- Build runtime VDF: copy committed vdf to %TEMP% and substitute <CONTENTFOLDER>. ---
+REM Keeps the committed vdf free of the local absolute path (which contains the
+REM Windows account name) and avoids the changenote-leakage of editing it in place.
 set "BAT_FILE=%~f0"
-set "VDF_PATH=%SCRIPT_DIR%workshop_upload.vdf"
+set "VDF_PATH=%TEMP%\workshop_upload_run.vdf"
+copy /Y "%SCRIPT_DIR%workshop_upload.vdf" "%VDF_PATH%" >nul
+powershell -ExecutionPolicy Bypass -NoProfile -Command "$c=Get-Content -LiteralPath $env:VDF_PATH -Raw; $c=$c.Replace('<CONTENTFOLDER>', $env:CONTENTFOLDER); Set-Content -LiteralPath $env:VDF_PATH -Value $c -NoNewline"
+
+REM --- Update changenote in temp VDF (auto-generates if CHANGENOTE is empty) ---
+REM Args are passed via env vars so cmd quoting doesn't mangle them.
 powershell -ExecutionPolicy Bypass -NoProfile -Command "$c=Get-Content -LiteralPath $env:BAT_FILE -Raw; $m='::'+'PS_BLOCK_START'+'::'; $i=$c.IndexOf($m); if($i -lt 0){throw 'sentinel missing'}; $sb=[scriptblock]::Create($c.Substring($i+$m.Length)); & $sb -Vdf $env:VDF_PATH -Override $env:CHANGENOTE"
 if errorlevel 1 (
     echo Failed to set change description. Aborting.
@@ -52,7 +59,9 @@ echo Synced.
 
 REM --- Upload to Steam Workshop ---
 echo Uploading to Steam Workshop...
-"%STEAMCMD%" +login %1 +workshop_build_item "%SCRIPT_DIR%workshop_upload.vdf" +quit
+"%STEAMCMD%" +login %1 +workshop_build_item "%VDF_PATH%" +quit
+
+del "%VDF_PATH%" 2>nul
 
 echo.
 echo Done! Check output above for success/failure.

@@ -1,6 +1,6 @@
 version=1
 id=3688186430
-contentfolder=C:\Users\USERNAME\WebstormProjects\zomboid-inventory-tetris\Contents
+contentfolder=<CONTENTFOLDER>
 title=Inventory Tetris - Grid Based Inventory Overhaul [B42.15+ MP Patch]
 description=
 description=[h1]B42.15+ Multiplayer Compatibility Patch[/h1]
