@@ -1,5 +1,6 @@
 $modDir = Join-Path $PSScriptRoot "Contents\mods\InventoryTetris"
 $files = @(
+    Join-Path $modDir "42.17\mod.info"
     Join-Path $modDir "42.16\mod.info"
     Join-Path $modDir "42.15\mod.info"
     Join-Path $modDir "42.13\mod.info"
@@ -22,5 +23,5 @@ foreach ($f in $files) {
     }
 }
 
-$verLine = Select-String -Path (Join-Path $modDir "42.16\mod.info") -Pattern "^modversion="
+$verLine = Select-String -Path (Join-Path $modDir "42.17\mod.info") -Pattern "^modversion="
 Write-Host "New version: $($verLine.Line.Split('=')[1])"

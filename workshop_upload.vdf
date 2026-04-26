@@ -3,5 +3,5 @@
   "appid"        "108600"
   "publishedfileid"  "3688186430"
   "contentfolder"    "C:\Users\USERNAME\WebstormProjects\zomboid-inventory-tetris\Contents"
-  "changenote"   "Fix keyring/nested container opening (OnGameBoot), fix remaining sendServerCommand arg order, update workshop description"
+  "changenote"   "Update EncumbranceSpeedSystem.lua, GridAutoDropSystem.lua, InventoryTetris_disable_carry_capacity.lua, ItemContainerGrid.lua, ValidateEquippedItemsSystem.lua; Add B42.17 support"
 }
