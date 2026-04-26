@@ -8,7 +8,7 @@ set "SCRIPT_DIR=%~dp0"
 cd /d "%SCRIPT_DIR%"
 set "STEAMCMD_DIR=%SCRIPT_DIR%steamcmd"
 set "STEAMCMD=%STEAMCMD_DIR%\steamcmd.exe"
-set "WORKSHOP_DIR=C:\Users\USERNAME\Zomboid\Workshop\InventoryTetris"
+set "WORKSHOP_DIR=%USERPROFILE%\Zomboid\Workshop\InventoryTetris"
 set "MOD_DIR=%SCRIPT_DIR%Contents\mods\InventoryTetris"
 
 if "%~1"=="" (
